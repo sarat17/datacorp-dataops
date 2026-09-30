@@ -38,6 +38,71 @@ flowchart TD
 5. Al hacer push, las pruebas se ejecutan de nuevo desde cero.
 6. Solo si todo pasa en QA, se aprueba el paso a producción.
 
+## Actividad 2: Implementación de MDM
+
+### 2.1 Entidades maestras
+
+| Entidad | Atributos clave | Fuentes de datos | Reglas de calidad | Data owner |
+|---|---|---|---|---|
+| Cliente | ID_cliente, nombre, documento, email, teléfono, fecha_alta | CRM, e-commerce, punto de venta | ID único; email válido; sin duplicados; documento obligatorio | Director Comercial |
+| Producto | SKU, nombre, categoría, precio_lista, estado | ERP, catálogo | SKU único; precio mayor a 0; categoría válida | Gerente de Producto |
+| Proveedor | ID_proveedor, razón social, NIT, país, condiciones de pago | ERP, área de compras | NIT válido y único; sin proveedores duplicados | Director de Compras |
+| Ubicación (tienda) | ID_tienda, ciudad, dirección, región, coordenadas | ERP, sistema de logística | Dirección normalizada; coordenadas válidas | Director de Operaciones |
+| Finanzas | ID_centro_costo, moneda, tasa, periodo | Sistema contable, ERP | Moneda en formato ISO; periodos sin traslape | Director Financiero |
+
+### 2.2 Diagrama de consolidación de datos
+
+```mermaid
+flowchart LR
+  S1["CRM"] --> I["Ingesta"]
+  S2["ERP"] --> I
+  S3["E-commerce"] --> I
+  S4["Punto de venta"] --> I
+  I --> L["Limpieza y estandarización"]
+  L --> M["Matching y deduplicación"]
+  M --> G["Registro maestro (golden record)"]
+  G --> T["Sistemas transaccionales"]
+  G --> A["Sistemas analíticos y modelos de ML"]
+```
+
+Los datos llegan desde varias fuentes, se limpian, se detectan y fusionan los duplicados, y se genera un único registro maestro. Ese registro se sincroniza de vuelta hacia los sistemas que operan el negocio y los que hacen análisis.
+
+### 2.3 Políticas de gobernanza del dato maestro "Cliente"
+
+**Definición de cliente activo:** cliente que ha realizado al menos una compra en los últimos 12 meses y cuya cuenta no está bloqueada ni dada de baja.
+
+**Reglas de limpieza y duplicación:**
+- Los nombres se escriben con mayúscula inicial y sin espacios dobles.
+- Los emails se guardan en minúsculas y con formato válido.
+- Dos registros son duplicados si coinciden en el documento de identidad, o en email y fecha de nacimiento.
+- Regla de supervivencia: se conserva el registro más reciente y los campos vacíos se completan con el otro.
+- Toda fusión de duplicados queda registrada en un historial.
+
+**Flujo de aprobación de cambios:**
+1. Un área solicita el cambio mediante un ticket.
+2. El data steward revisa que cumpla las reglas de calidad.
+3. El data owner (Director Comercial) aprueba o rechaza.
+4. Se aplica el cambio y queda en auditoría (quién, cuándo y qué cambió).
+
+**Políticas de acceso y seguridad:**
+- Acceso por roles: los analistas solo leen y los data stewards pueden escribir.
+- Los datos personales se cifran y se enmascaran en DEV y QA.
+- Se cumple la ley de protección de datos personales.
+- Los permisos se revisan cada trimestre.
+
+### 2.4 Caso: dos definiciones distintas de "cliente activo"
+
+**Situación:** Ventas define "cliente activo" como quien compró en los últimos 12 meses. Marketing lo define como quien abrió un correo en los últimos 6 meses. El modelo de predicción usa una definición y el dashboard usa otra, así que los números no coinciden.
+
+**Cómo lo resuelve MDM:**
+1. Se reúnen los data owners de ambas áreas.
+2. Se acuerda una única definición oficial (compra en los últimos 12 meses) y se registra en la política.
+3. Se crea un atributo maestro `es_activo`, calculado con esa regla.
+4. Todos los sistemas y modelos usan ese atributo en lugar de calcular el suyo.
+
+**Impacto en la replicabilidad de modelos:** cualquier científico de datos que entrene un modelo, hoy o dentro de un año, usa la misma definición y obtiene los mismos resultados. Sin MDM, dos personas con la misma pregunta llegarían a modelos y métricas diferentes, y no se podría reproducir ni comparar el trabajo.
+
+
 **Herramientas y validaciones:**
 - GitHub Actions o Jenkins: ejecutan el pipeline automáticamente.
 - pytest: pruebas unitarias del código.
