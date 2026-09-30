@@ -25,3 +25,22 @@ flowchart TD
   E --> F["6. Migraciones de datos"]
   F --> G["7. Disponibilidad en vivo"]
 ```
+
+### 1.3 Escenario de error: el modelo falla en QA
+
+**Escenario:** el modelo de predicción de ventas obtiene un error (RMSE) mayor al umbral permitido cuando se prueba en QA.
+
+**Protocolo de actuación:**
+1. El pipeline marca la etapa como fallida y **bloquea automáticamente** la promoción a PROD.
+2. Se envía una alerta al equipo (Slack o correo).
+3. Se crea un issue en GitHub con el log del error.
+4. El científico de datos corrige el problema en su rama `feature/*`.
+5. Al hacer push, las pruebas se ejecutan de nuevo desde cero.
+6. Solo si todo pasa en QA, se aprueba el paso a producción.
+
+**Herramientas y validaciones:**
+- GitHub Actions o Jenkins: ejecutan el pipeline automáticamente.
+- pytest: pruebas unitarias del código.
+- Great Expectations: validación de calidad de los datos.
+- MLflow: compara las métricas del modelo contra un umbral mínimo.
+- Branch protection en GitHub: impide el merge si las pruebas fallan.
