@@ -1,0 +1,3 @@
+entorno: qa
+base_datos: qa-db
+umbral_nulos: 0.10
