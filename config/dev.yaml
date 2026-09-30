@@ -1,0 +1,3 @@
+entorno: dev
+base_datos: dev-db
+umbral_nulos: 0.10
