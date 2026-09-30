@@ -109,3 +109,44 @@ Los datos llegan desde varias fuentes, se limpian, se detectan y fusionan los du
 - Great Expectations: validación de calidad de los datos.
 - MLflow: compara las métricas del modelo contra un umbral mínimo.
 - Branch protection en GitHub: impide el merge si las pruebas fallan.
+
+
+
+
+## Actividad 3: Control de versiones para todo
+
+### 3.1 Estructura del repositorio
+
+````
+datacorp-dataops/
+├── README.md
+├── .gitignore
+├── src/
+│   ├── entrenar_modelo.py
+│   └── sql/ventas_mensuales.sql
+├── config/
+│   ├── dev.yaml
+│   ├── qa.yaml
+│   └── prod.yaml
+├── pipelines/
+│   ├── dags/dag_ventas.py
+│   └── Jenkinsfile
+├── infra/terraform/main.tf
+└── docs/procedencia_datos.md
+````
+
+### 3.2 Qué se versiona y qué no
+
+**Se versiona:**
+- Código: scripts de Python, notebooks exportados y consultas SQL.
+- Configuraciones: archivos YAML/JSON de cada entorno.
+- Definiciones de pipeline: DAGs de Airflow y Jenkinsfile.
+- Infraestructura: archivos de Terraform.
+- Documentación, incluida la procedencia de los datos.
+
+**No se versiona:**
+- Contraseñas, llaves y tokens, porque exponerlos es un riesgo de seguridad.
+- Datos reales o pesados, porque Git no está diseñado para eso; se guardan en almacenamiento de objetos (S3) o con herramientas como DVC.
+- Archivos temporales y el estado de Terraform, porque se regeneran y pueden contener secretos.
+
+**Versionado de la procedencia de datos (data lineage):** cada modelo registra qué versión de los datos, qué versión del código y qué configuración lo produjeron (ver `docs/procedencia_datos.md`). Gracias a esto se puede reproducir cualquier resultado, auditar un error y saber exactamente con qué se entrenó el modelo que está en producción.
