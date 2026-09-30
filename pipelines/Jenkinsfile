@@ -1,0 +1,9 @@
+// Pipeline CI/CD (simulado)
+pipeline {
+  agent any
+  stages {
+    stage('Build y Test') { steps { echo 'Ejecutando pruebas' } }
+    stage('Test de Datos') { steps { echo 'Validando datos' } }
+    stage('Despliegue')    { steps { echo 'Desplegando' } }
+  }
+}
