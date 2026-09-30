@@ -1,0 +1,3 @@
+entorno: prod
+base_datos: prod-db
+umbral_nulos: 0.10
