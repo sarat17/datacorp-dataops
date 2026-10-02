@@ -14,7 +14,6 @@ resource "aws_s3_bucket" "staging_data" {
     Environment = "staging"
   }
 }
-
 # 2. Instancia EC2 para DEV
 resource "aws_instance" "dev_server" {
   ami           = "ami-0abcdef1234567890"
@@ -23,7 +22,6 @@ resource "aws_instance" "dev_server" {
     Environment = "dev"
   }
 }
-
 # 3. Base de datos RDS para PROD
 resource "aws_db_instance" "prod_db" {
   identifier        = "datacorp-prod-db"
