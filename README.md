@@ -207,3 +207,67 @@ flowchart LR
 
 El código de infraestructura se edita en una rama, se sube a Git y se revisa en un Pull Request. Al unirlo a `main`, el pipeline valida la sintaxis (`fmt` y `validate`), muestra el plan de cambios y, tras una aprobación manual, aplica el despliegue.
 
+
+## Actividad 5: Continuous Delivery para DataOps
+
+### 5.1 Pipeline de CD para el modelo de predicción de ventas
+
+El pipeline se ejecuta automáticamente cada vez que se hace un cambio en Git. Tiene seis etapas en orden, y cada una solo comienza si la anterior terminó bien:
+
+1. **Build & Test:** se instalan las dependencias y se prueba el código.
+2. **Test de Datos:** se valida la calidad de los datos de entrada.
+3. **Train & Validate:** se entrena el modelo y se mide su desempeño.
+4. **Empaquetado:** el modelo se convierte en una imagen reproducible.
+5. **Despliegue en Staging:** se publica en QA para pruebas finales.
+6. **Despliegue en Producción:** se publica para los clientes reales.
+
+### 5.2 Detalle de cada etapa
+
+| Etapa | Herramientas sugeridas | Criterio de éxito | Acción en caso de fallo |
+|---|---|---|---|
+| 1. Build & Test | GitHub Actions, pytest | Todas las pruebas unitarias pasan | Se bloquea el merge y se avisa al autor del cambio |
+| 2. Test de Datos | Great Expectations | Nulos ≤ 10 %, esquema correcto, sin duplicados | Se detiene el pipeline y se alerta al data owner |
+| 3. Train & Validate | scikit-learn, MLflow | La métrica (ej. RMSE) cumple el umbral mínimo | El modelo no se registra; se revisa el entrenamiento |
+| 4. Empaquetado | Docker | Imagen construida sin vulnerabilidades críticas | Se corrige la dependencia y se reconstruye |
+| 5. Despliegue en Staging | Terraform, Docker | Pruebas de humo e integración pasan | Rollback a la versión anterior de staging |
+| 6. Despliegue en Producción | Terraform, aprobación manual | Health checks correctos y sin errores | Rollback automático a la versión estable |
+
+### 5.3 Simulación de fallo en la etapa "Test de Datos"
+
+**Escenario:** en la etapa de Test de Datos, Great Expectations detecta que la columna `monto_venta` tiene **14 % de valores nulos**, y el límite permitido es 10 %.
+
+**Protocolo de actuación:**
+1. La validación falla y el pipeline se detiene: las etapas siguientes (entrenar, empaquetar, desplegar) no se ejecutan.
+2. Se envía una alerta al data owner y al equipo de datos.
+3. Se investiga la causa (por ejemplo, un cambio en el sistema origen o una carga incompleta).
+4. Se corrige la fuente o se ajusta la limpieza, y se documenta en un issue de GitHub.
+5. Se vuelve a ejecutar el pipeline desde el inicio.
+
+**Cómo se evita que el modelo llegue a producción:** cada etapa depende de que la anterior termine bien. Como el pipeline se detiene en Test de Datos, el modelo nunca se entrena con datos de mala calidad, ni se empaqueta, ni llega a QA o PROD.
+
+### 5.4 Diagrama del pipeline completo (tres pilares)
+
+```mermaid
+flowchart TD
+  subgraph GIT["Pilar 1: Control de versiones"]
+    A["Commit y Pull Request"]
+  end
+  subgraph CD["Pilar 3: Pipeline de CD"]
+    B["Build y Test"] --> C["Test de Datos"]
+    C --> D["Train y Validate"]
+    D --> E["Empaquetado"]
+    E --> F["Despliegue en Staging"]
+    F --> G["Despliegue en Producción"]
+  end
+  subgraph IAC["Pilar 2: Infraestructura como código"]
+    H["Terraform crea DEV, QA y PROD"]
+  end
+  A --> B
+  H -.-> F
+  H -.-> G
+  C -->|Falla| X["Alerta y corrección"]
+  X --> A
+```
+
+Los tres pilares trabajan juntos: **Git** dispara el pipeline con cada cambio, **Terraform** garantiza que los entornos de staging y producción sean idénticos y reproducibles, y el **pipeline de CD** valida y despliega el modelo paso a paso. Si una etapa falla, el cambio vuelve al desarrollador y no avanza.
+
