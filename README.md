@@ -170,4 +170,40 @@ Se realizó un cambio en `src/entrenar_modelo.py` sobre la rama `feature/registr
 ![Pull Request](docs/evidencia_pr.png)
 
 
+## Actividad 4: Infraestructura como código (IaC)
+
+### 4.1 Archivo Terraform
+
+El archivo [`infra/terraform/main.tf`](infra/terraform/main.tf) define:
+- Un **bucket S3** para los datos de staging.
+- Una **instancia EC2** para el entorno DEV.
+- Una **base de datos RDS** (PostgreSQL) para PROD, con cifrado y alta disponibilidad (Multi-AZ).
+- Un **rol IAM con permisos restringidos**: solo puede leer y escribir objetos en el bucket de staging (principio de mínimo privilegio).
+
+**Cómo permite replicar entornos idénticos:** el archivo describe la infraestructura completa. Cualquier persona que lo ejecute obtiene exactamente los mismos recursos, sin pasos manuales ni diferencias entre DEV, QA y PROD. Para cada entorno solo cambian las variables (tamaño, nombre, credenciales). Además, al estar en Git, cada cambio de infraestructura queda registrado y es revisable mediante Pull Request.
+
+**Comandos para aplicar los cambios:**
+
+```bash
+terraform init       # descarga los plugins necesarios
+terraform fmt        # da formato al código
+terraform validate   # revisa que la sintaxis sea correcta
+terraform plan       # muestra qué se va a crear o cambiar
+terraform apply      # crea la infraestructura
+```
+
+### 4.2 Flujo de trabajo de IaC
+
+```mermaid
+flowchart LR
+  A["Editar código .tf"] --> B["Commit en Git"]
+  B --> C["Pull Request y revisión"]
+  C --> D["Merge a main"]
+  D --> E["CI: terraform fmt y validate"]
+  E --> F["terraform plan"]
+  F --> G["Aprobación manual"]
+  G --> H["terraform apply (despliegue)"]
+```
+
+El código de infraestructura se edita en una rama, se sube a Git y se revisa en un Pull Request. Al unirlo a `main`, el pipeline valida la sintaxis (`fmt` y `validate`), muestra el plan de cambios y, tras una aprobación manual, aplica el despliegue.
 
