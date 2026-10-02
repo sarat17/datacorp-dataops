@@ -150,3 +150,24 @@ datacorp-dataops/
 - Archivos temporales y el estado de Terraform, porque se regeneran y pueden contener secretos.
 
 **Versionado de la procedencia de datos (data lineage):** cada modelo registra qué versión de los datos, qué versión del código y qué configuración lo produjeron (ver `docs/procedencia_datos.md`). Gracias a esto se puede reproducir cualquier resultado, auditar un error y saber exactamente con qué se entrenó el modelo que está en producción.
+
+### 3.3 Commit y Pull Request
+
+Se realizó un cambio en `src/entrenar_modelo.py` sobre la rama `feature/registrar-metricas` y se abrió un Pull Request hacia `main`.
+
+**Flujo de revisión de código:**
+1. El desarrollador crea una rama y hace commit de sus cambios.
+2. Abre un Pull Request describiendo qué cambió y por qué.
+3. Un compañero revisa el código y deja comentarios.
+4. El pipeline ejecuta automáticamente las pruebas.
+5. Si pasan, el cambio se despliega en QA para su validación.
+6. Con la aprobación del revisor y de QA, se hace merge a la rama principal.
+
+**Integración con QA:** ningún cambio llega a producción sin pasar por un Pull Request y por las pruebas automáticas en QA.
+
+**Evidencia:**
+
+![Pull Request](docs/evidencia_pr.png)
+
+
+
