@@ -4,3 +4,5 @@
 
    if __name__ == "__main__":
        entrenar()
+
+   # Mejora: registrar métricas del modelo para compararlas en QA
