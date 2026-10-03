@@ -271,3 +271,15 @@ flowchart TD
 
 Los tres pilares trabajan juntos: **Git** dispara el pipeline con cada cambio, **Terraform** garantiza que los entornos de staging y producción sean idénticos y reproducibles, y el **pipeline de CD** valida y despliega el modelo paso a paso. Si una etapa falla, el cambio vuelve al desarrollador y no avanza.
 
+## Actividad 6: Integración final, la tripleta del control
+
+### 6.1 Plan de implementación de DataOps
+
+| Fase | Duración | Componente | Qué se hace |
+|---|---|---|---|
+| 1 | Meses 1 y 2 | Entornos aislados y control de versiones | Separar DEV, QA y PROD; migrar el código a Git con ramas y Pull Requests |
+| 2 | Mes 3 | Infraestructura como código | Describir los entornos con Terraform para crearlos de forma repetible |
+| 3 | Meses 4 y 5 | Entrega continua (CD) | Construir el pipeline con pruebas de código, de datos y de modelos |
+| 4 | Meses 5 y 6 | MDM | Definir entidades maestras, políticas de gobierno y registro maestro |
+| 5 | Mes 6 | Integración | Medir métricas, capacitar al equipo y ajustar |
+
