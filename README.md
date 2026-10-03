@@ -283,3 +283,14 @@ Los tres pilares trabajan juntos: **Git** dispara el pipeline con cada cambio, *
 | 4 | Meses 5 y 6 | MDM | Definir entidades maestras, políticas de gobierno y registro maestro |
 | 5 | Mes 6 | Integración | Medir métricas, capacitar al equipo y ajustar |
 
+
+### 6.2 Métricas de éxito
+
+| Componente | Métrica | Meta |
+|---|---|---|
+| Entornos aislados | Incidentes en producción por cambios no probados | 0 por trimestre |
+| Control de versiones | Porcentaje de modelos replicables desde el repositorio | 95 % o más |
+| Infraestructura como código | Tiempo para crear un entorno nuevo | De días a menos de 1 hora |
+| Entrega continua | Tiempo de recuperación ante fallos | Menos de 30 minutos |
+| MDM | Porcentaje de registros de cliente duplicados | Menos del 1 % |
+| General | Tiempo de onboarding de un nuevo científico de datos | De 2 semanas a 2 días |
