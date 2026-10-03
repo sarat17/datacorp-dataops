@@ -294,3 +294,8 @@ Los tres pilares trabajan juntos: **Git** dispara el pipeline con cada cambio, *
 | Entrega continua | Tiempo de recuperación ante fallos | Menos de 30 minutos |
 | MDM | Porcentaje de registros de cliente duplicados | Menos del 1 % |
 | General | Tiempo de onboarding de un nuevo científico de datos | De 2 semanas a 2 días |
+
+
+### 6.3 Informe ejecutivo
+
+El informe dirigido a la dirección, con los riesgos actuales, la solución propuesta, los beneficios esperados, el plan de implementación y los recursos necesarios, está en: [docs/informe_ejecutivo.md](docs/informe_ejecutivo.md)
