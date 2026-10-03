@@ -299,3 +299,37 @@ Los tres pilares trabajan juntos: **Git** dispara el pipeline con cada cambio, *
 ### 6.3 Informe ejecutivo
 
 El informe dirigido a la dirección, con los riesgos actuales, la solución propuesta, los beneficios esperados, el plan de implementación y los recursos necesarios, está en: [docs/informe_ejecutivo.md](docs/informe_ejecutivo.md)
+
+
+### 6.4 Arquitectura DataOps completa
+
+```mermaid
+flowchart LR
+  subgraph FUENTES["Fuentes de datos"]
+    CRM["CRM"]
+    ERP["ERP"]
+    ECO["E-commerce"]
+  end
+  subgraph MDM["MDM"]
+    GR["Registro maestro"]
+  end
+  subgraph GIT["Control de versiones"]
+    REPO["Código, config, Terraform, pipelines"]
+  end
+  subgraph CICD["Pipeline CI/CD"]
+    P["Pruebas de código y de datos"] --> T["Train y Validate"] --> D["Empaquetado y despliegue"]
+  end
+  subgraph ENT["Entornos creados con Terraform"]
+    DEV["DEV"] --> QA["QA"] --> PROD["PROD"]
+  end
+  CRM --> GR
+  ERP --> GR
+  ECO --> GR
+  GR --> P
+  REPO --> P
+  D --> DEV
+  PROD --> MON["Monitoreo y alertas"]
+  MON -.-> REPO
+```
+
+**Cómo funciona la arquitectura:** los datos de las distintas fuentes se consolidan en el registro maestro (MDM), de modo que todos los modelos usan las mismas definiciones. Todo el trabajo (código, configuraciones, infraestructura y pipelines) se guarda en Git. El pipeline de CI/CD prueba el código y los datos, entrena el modelo, lo empaqueta y lo despliega. Los entornos DEV, QA y PROD fueron creados con Terraform, por lo que son idénticos y reproducibles, y el modelo se promueve de uno a otro. El monitoreo de producción genera alertas que vuelven al repositorio como nuevos cambios, cerrando el ciclo.
